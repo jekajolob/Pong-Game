@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pong Game</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #000;
+      }
+      #pongCanvas {
+        background-image: url('20ee843b-b5fc-4eb9-9e62-c5b4f4836139.webp');
+        background-size: cover;
+        background-position: center;
+        border: 1px solid #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="pongCanvas" width="800" height="600"></canvas>
+    <script>
+      const canvas = document.getElementById('pongCanvas')
+      const context = canvas.getContext('2d')
+
+      const paddleWidth = 10
+      const paddleHeight = 100
+      const ballRadius = 10
+
+      let upPressed = false
+      let downPressed = false
+      let wPressed = false
+      let sPressed = false
+
+      const paddle1 = {
+        x: 0,
+        y: canvas.height / 2 - paddleHeight / 2,
+        width: paddleWidth,
+        height: paddleHeight,
+        dy: 4,
+      }
+
+      const paddle2 = {
+        x: canvas.width - paddleWidth,
+        y: canvas.height / 2 - paddleHeight / 2,
+        width: paddleWidth,
+        height: paddleHeight,
+        dy: 4,
+      }
+
+      const ball = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        radius: ballRadius,
+        speed: 4,
+        dx: 4,
+        dy: -4,
+      }
+
+      function drawPaddle(paddle) {
+        context.fillStyle = '#fff'
+        context.fillRect(paddle.x, paddle.y, paddle.width, paddle.height)
+      }
+
+      function drawBall() {
+        context.beginPath()
+        context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2)
+        context.fillStyle = '#fff'
+        context.fill()
+        context.closePath()
+      }
+
+      function movePaddle(paddle, upKey, downKey) {
+        if (upKey && paddle.y > 0) {
+          paddle.y -= paddle.dy
+        } else if (downKey && paddle.y < canvas.height - paddle.height) {
+          paddle.y += paddle.dy
+        }
+      }
+
+      function moveBall() {
+        ball.x += ball.dx
+        ball.y += ball.dy
+
+        if (
+          ball.y + ball.dy < ball.radius ||
+          ball.y + ball.dy > canvas.height - ball.radius
+        ) {
+          ball.dy = -ball.dy
+        }
+
+        if (ball.x + ball.dx < ball.radius) {
+          if (ball.y > paddle1.y && ball.y < paddle1.y + paddle1.height) {
+            ball.dx = -ball.dx
+          } else {
+            resetBall()
+          }
+        } else if (ball.x + ball.dx > canvas.width - ball.radius) {
+          if (ball.y > paddle2.y && ball.y < paddle2.y + paddle2.height) {
+            ball.dx = -ball.dx
+          } else {
+            resetBall()
+          }
+        }
+      }
+
+      function resetBall() {
+        ball.x = canvas.width / 2
+        ball.y = canvas.height / 2
+        ball.dx = -ball.dx
+      }
+
+      function draw() {
+        context.clearRect(0, 0, canvas.width, canvas.height)
+        drawPaddle(paddle1)
+        drawPaddle(paddle2)
+        drawBall()
+        movePaddle(paddle1, wPressed, sPressed)
+        movePaddle(paddle2, upPressed, downPressed)
+        moveBall()
+      }
+
+      function keyDownHandler(e) {
+        if (e.key === 'ArrowUp') {
+          upPressed = true
+        } else if (e.key === 'ArrowDown') {
+          downPressed = true
+        } else if (e.key === 'w') {
+          wPressed = true
+        } else if (e.key === 's') {
+          sPressed = true
+        }
+      }
+
+      function keyUpHandler(e) {
+        if (e.key === 'ArrowUp') {
+          upPressed = false
+        } else if (e.key === 'ArrowDown') {
+          downPressed = false
+        } else if (e.key === 'w') {
+          wPressed = false
+        } else if (e.key === 's') {
+          sPressed = false
+        }
+      }
+
+      document.addEventListener('keydown', keyDownHandler)
+      document.addEventListener('keyup', keyUpHandler)
+
+      setInterval(draw, 10)
+    </script>
+  </body>
+</html>
